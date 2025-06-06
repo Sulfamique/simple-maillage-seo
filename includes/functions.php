@@ -45,7 +45,7 @@ function simple_maillage_seo_dashboard() {
             echo '<tr>';
             echo '<td><input type="text" name="keywords[]" value="' . $keyword . '" placeholder="' . esc_attr__('Entrez un mot clé', 'simple-maillage-seo') . '" /></td>';
             echo '<td><input type="url" name="links[]" value="' . $url . '" placeholder="' . esc_attr__('Entrez un lien', 'simple-maillage-seo') . '" /></td>';
-            echo '<td><button type="button" class="button button-secondary remove-row">' . esc_html__('Supprimer', 'simple-maillage-seo') . '</button></td>';
+            echo '<td><button type="button" class="button button-secondary remove-row" aria-label="' . esc_attr__('Supprimer', 'simple-maillage-seo') . '"><span class="dashicons dashicons-trash"></span></button></td>';
             echo '</tr>';
         }
     } else {
@@ -53,7 +53,7 @@ function simple_maillage_seo_dashboard() {
         echo '<tr>';
         echo '<td><input type="text" name="keywords[]" placeholder="' . esc_attr__('Entrez un mot clé', 'simple-maillage-seo') . '" /></td>';
         echo '<td><input type="url" name="links[]" placeholder="' . esc_attr__('Entrez un lien', 'simple-maillage-seo') . '" /></td>';
-        echo '<td><button type="button" class="button button-secondary remove-row">' . esc_html__('Supprimer', 'simple-maillage-seo') . '</button></td>';
+        echo '<td><button type="button" class="button button-secondary remove-row" aria-label="' . esc_attr__('Supprimer', 'simple-maillage-seo') . '"><span class="dashicons dashicons-trash"></span></button></td>';
         echo '</tr>';
     }
 
@@ -108,15 +108,64 @@ function simple_maillage_seo_register_settings() {
 add_action('admin_init', 'simple_maillage_seo_register_settings');
 
 // Ajouter les liens automatiquement dans le contenu
+function simple_maillage_seo_insert_link_dom(DOMDocument $dom, $keyword, $url) {
+    $xpath = new DOMXPath($dom);
+    $nodes = $xpath->query('//text()');
+
+    foreach ($nodes as $node) {
+        if (stripos($node->nodeValue, $keyword) === false) {
+            continue;
+        }
+
+        $skip = false;
+        for ($parent = $node->parentNode; $parent && $parent->nodeType === XML_ELEMENT_NODE; $parent = $parent->parentNode) {
+            $tag = strtolower($parent->nodeName);
+            if ($tag === 'a' || preg_match('/^h[1-6]$/', $tag)) {
+                $skip = true;
+                break;
+            }
+            if ($parent->hasAttribute('class') && stripos($parent->getAttribute('class'), 'faq') !== false) {
+                $skip = true;
+                break;
+            }
+        }
+
+        if ($skip) {
+            continue;
+        }
+
+        $pos = stripos($node->nodeValue, $keyword);
+        if ($pos === false) {
+            continue;
+        }
+
+        $before = substr($node->nodeValue, 0, $pos);
+        $match  = substr($node->nodeValue, $pos, strlen($keyword));
+        $after  = substr($node->nodeValue, $pos + strlen($keyword));
+
+        $parent = $node->parentNode;
+        $afterNode = $dom->createTextNode($after);
+        $linkNode  = $dom->createElement('a', $match);
+        $linkNode->setAttribute('href', $url);
+        $beforeNode = $dom->createTextNode($before);
+
+        $parent->replaceChild($afterNode, $node);
+        $parent->insertBefore($linkNode, $afterNode);
+        $parent->insertBefore($beforeNode, $linkNode);
+
+        return true;
+    }
+
+    return false;
+}
+
 function simple_maillage_seo_process_content($content) {
-    // Ne pas modifier le contenu dans l'administration
     if (is_admin()) {
         return $content;
     }
 
-    // Récupération des données enregistrées
     $data = get_option('simple_maillage_seo_data', []);
-    if (!is_array($data)) {
+    if (!is_array($data) || empty($data)) {
         return $content;
     }
 
@@ -126,26 +175,26 @@ function simple_maillage_seo_process_content($content) {
         return $content;
     }
 
+    libxml_use_internal_errors(true);
+    $dom = new DOMDocument('1.0', 'UTF-8');
+    $dom->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'));
+    libxml_clear_errors();
+
     foreach ($data as $item) {
-        // Vérifier que le mot-clé et l'URL sont valides
         if (!isset($item['keyword'], $item['url']) || empty($item['keyword']) || empty($item['url'])) {
             continue;
         }
 
-        $keyword = preg_quote($item['keyword'], '/'); // Échappe les caractères spéciaux dans le mot-clé
-        $url = esc_url($item['url']); // Nettoie l'URL
-
-        // Utiliser preg_replace_callback pour ne remplacer que le premier mot-clé trouvé
-        $content = preg_replace_callback(
-            "/(?<!<a[^>]*>)\b($keyword)\b(?!<\/a>)/iu", // Rechercher le mot-clé sans être déjà dans un lien
-            function ($matches) use ($url) {
-                return '<a href="' . $url . '">' . $matches[1] . '</a>'; // Ajouter le lien autour du mot-clé
-            },
-            $content,
-            1 // Limiter à une occurrence
-        );
+        $url = esc_url($item['url']);
+        simple_maillage_seo_insert_link_dom($dom, $item['keyword'], $url);
     }
 
-    return $content;
+    $body = $dom->getElementsByTagName('body')->item(0);
+    $new_content = '';
+    foreach ($body->childNodes as $child) {
+        $new_content .= $dom->saveHTML($child);
+    }
+
+    return $new_content;
 }
 add_filter('the_content', 'simple_maillage_seo_process_content');

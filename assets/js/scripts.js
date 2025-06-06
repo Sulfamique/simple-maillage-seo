@@ -8,7 +8,7 @@ jQuery(document).ready(function($) {
             <tr>
                 <td><input type="text" name="keywords[]" placeholder="Entrez un mot clé" /></td>
                 <td><input type="url" name="links[]" placeholder="Entrez un lien" /></td>
-                <td><button type="button" class="button button-secondary remove-row">Supprimer</button></td>
+                <td><button type="button" class="button button-secondary remove-row" aria-label="Supprimer"><span class="dashicons dashicons-trash"></span></button></td>
             </tr>`;
         $('#keywords-table tbody').append(newRow);
     });
