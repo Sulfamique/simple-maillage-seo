@@ -7,6 +7,7 @@ Version: 1.0
 Author: Sulfamique
 Author URI: https://x.com/Sulfamique
 License: GPL2
+Text Domain: simple-maillage-seo
 */
 
 if (!defined('ABSPATH')) {
@@ -15,6 +16,11 @@ if (!defined('ABSPATH')) {
 
 // Inclure les fonctions supplémentaires
 require_once plugin_dir_path(__FILE__) . 'includes/functions.php';
+
+function simple_maillage_seo_load_textdomain() {
+    load_plugin_textdomain('simple-maillage-seo', false, dirname(plugin_basename(__FILE__)) . '/languages');
+}
+add_action('init', 'simple_maillage_seo_load_textdomain');
 
 function simple_maillage_seo_enqueue_admin_assets($hook) {
     if ($hook !== 'toplevel_page_simple-maillage-seo') {
