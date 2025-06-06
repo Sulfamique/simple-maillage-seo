@@ -38,6 +38,7 @@ function simple_maillage_seo_enqueue_admin_assets($hook) {
         [],
         $style_version // Version basée sur le cache
     );
+    wp_enqueue_style('dashicons');
 
     // JS
     wp_enqueue_script(
