@@ -23,12 +23,12 @@ function simple_maillage_seo_enqueue_admin_assets($hook) {
 
     // Numéro de version dynamique basé sur la dernière modification du fichier
     $script_version = filemtime(plugin_dir_path(__FILE__) . 'assets/js/scripts.js');
-    $style_version = filemtime(plugin_dir_path(__FILE__) . 'assets/css/styles.css');
+    $style_version = filemtime(plugin_dir_path(__FILE__) . 'assets/css/style.css');
 
     // CSS
     wp_enqueue_style(
         'simple-maillage-seo-admin-style',
-        plugin_dir_url(__FILE__) . 'assets/css/styles.css',
+        plugin_dir_url(__FILE__) . 'assets/css/style.css',
         [],
         $style_version // Version basée sur le cache
     );
