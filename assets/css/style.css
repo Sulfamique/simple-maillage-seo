@@ -1,0 +1,118 @@
+/* Style général du tableau de bord */
+.wrap {
+    font-family: Arial, sans-serif;
+    color: #444;
+}
+
+.wrap h1 {
+    color: #0073aa; /* Bleu WordPress */
+    border-bottom: 2px solid #0073aa;
+    padding-bottom: 10px;
+}
+
+/* Champs texte (textarea) */
+textarea {
+    width: 100%;
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    resize: vertical; /* Permet au champ d'être redimensionnable */
+}
+
+/* Boutons */
+button,
+#add-row {
+    /* Utilisation des classes WordPress natives */
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+#add-row {
+    margin-top: 10px;
+}
+
+/* Listes déroulantes */
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+/* Table du tableau de mots-clés */
+#keywords-table {
+    margin-top: 20px;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#keywords-table th {
+    background-color: #f1f1f1;
+    font-weight: bold;
+    text-align: left;
+    padding: 10px;
+    border-bottom: 2px solid #ddd;
+}
+
+#keywords-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Lignes du tableau (hover effect) */
+#keywords-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Boutons de suppression dans les lignes */
+.remove-row {
+    background-color: #ff5c5c;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.remove-row:hover {
+    background-color: #e64545;
+}
+
+/* Section des exclusions */
+.exclusion-list {
+    margin-top: 20px;
+}
+
+.exclusion-list h3 {
+    color: #333;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.exclusion-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.exclusion-list li {
+    margin: 5px 0;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.exclusion-list li button {
+    background-color: #ff5c5c;
+    color: #fff;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 3px;
+}
